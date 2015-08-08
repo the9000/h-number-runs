@@ -3,12 +3,11 @@
 def findNumberRuns(data, run_length=3):
     results = []
     index = 0
-    while len(data) >= run_length: 
-        potential_run = data[:run_length]
+    while len(data) - index >= run_length: 
+        potential_run = data[index : index + run_length]
         if isRun(potential_run):
             results.append(index)
         index += 1
-        data = data[1:]
     return results
 
 
