@@ -13,10 +13,9 @@ def findNumberRuns(data, run_length=3):
 
 
 def isRun(potential_run):
-    assert potential_run, "Empty runs make no sense."
+    assert len(potential_run) > 1, "Runs shorter that 2 make no sense."
     diffs = (x - y for (x, y) in zip(potential_run, potential_run[1:]))
     delta = diffs.next()
-    for next_delta in diffs:
-        if next_delta != delta:
-            return False
-    return True
+    if delta not in (-1, 1):
+        return False
+    return all(next_delta == delta for next_delta in diffs)
