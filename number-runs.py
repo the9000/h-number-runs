@@ -27,21 +27,20 @@ def findNumberRuns(input_sequence, run_length=3):
     """
     assert run_length > 1, "Runs shorter that 2 make no sense."
     source = iter(input_sequence)  # ok with any iterables
-    results = []
     index = 0
-    while True: 
-        potential_run = take(run_length, source)
+    while True:
+        potential_run, rest = take(run_length, source)
         if len(potential_run) < run_length:
             break
         if isRun(potential_run):
-            results.append(index)
-        source = pushBack(potential_run[1:], source)
+            yield index
+        # scan further right after the beginning of the previos potential_run.
+        source = itertools.chain(potential_run[1:], rest)
         index += 1
-    return results
 
 
 def isRun(potential_run):
-    """returns True iff potential_run is an ascending or descending run."""
+    """Returns True iff potential_run is an ascending or descending run."""
     # We allocate O(len(potential_run)) memory. If runs are huge,
     # this can be rewritten using index access or iterators to avoid it.
     diffs = (x - y for (x, y) in zip(potential_run, potential_run[1:]))
@@ -52,35 +51,38 @@ def isRun(potential_run):
 
 
 def take(n, data):
-    # We can replace [..] with (..) to make it lazy.
-    return [x for (_, x) in zip(range(n), data)]
+    """Returns:
+      up to n first elements of data, and an iterator with the rest of data."""
+    source = iter(data)
+    # The list comprehension advances source as a side effect. So impure.
+    return ([x for (_, x) in zip(range(n), source)], source)
 
-    
-def pushBack(prefix_data, source):
-    return itertools.chain(prefix_data, source)
 
-    
 ## Tests.
 
-    
+
 class RunsTest(unittest.TestCase):
 
+    def testEmptyInputGivesEmptyResult(self):
+        self.assertEquals([], list(findNumberRuns([])))
+
     def testSequenceFromProblemStatementWorks(self):
-        self.assertEquals([0, 4, 6, 7],
-                          findNumberRuns([1, 2, 3, 5, 10, 9, 8, 9, 10, 11, 7]))
+        self.assertEquals(
+            [0, 4, 6, 7],
+            list(findNumberRuns([1, 2, 3, 5, 10, 9, 8, 9, 10, 11, 7])))
 
     def testInputShorterThanRunLengthResultsInEmptyList(self):
-        self.assertEquals([], findNumberRuns(range(10), run_length=11))
+        self.assertEquals([], list(findNumberRuns(range(10), run_length=11)))
 
     def testEmbeddedSequentialRunsAreDetected(self):
         self.assertEquals([0, 1, 2],
-                          findNumberRuns([1, 2, 3, 4, 5]))
+                          list(findNumberRuns([1, 2, 3, 4, 5])))
 
     def testNonDefaultRunLengthWorks(self):
         self.assertEquals(
             [2],
-            findNumberRuns([4, 7, 1, 2, 3, 4, 5, 8], run_length=5))
-        
-        
+            list(findNumberRuns([4, 7, 1, 2, 3, 4, 5, 8], run_length=5)))
+
+
 if __name__ == '__main__':
     unittest.main()
