@@ -4,7 +4,7 @@ The algorithm needs to spend _O(n*k)_ time, where _n_ is the length of the seque
 and _k_ is the length of the run to detect. _O(k)_ RAM is strictly enough,
 provided that we stream in the sequence and stream out the results.
 
-Tje Python implementation plays with iterators and should well with very long
+The Python implementation plays with iterators and should well with very long
 input sequences without allocating much RAM.
 
 The Haskell implementation plays with pattern matching; it also should run
